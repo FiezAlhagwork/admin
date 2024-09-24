@@ -1,0 +1,17 @@
+.login__perant{
+    min-width: 30%;
+    padding:20px 20px ;
+    background-color: #fff;
+    min-height: 40vh;
+    border-radius:10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .perant{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #eee;
+  }
+  
