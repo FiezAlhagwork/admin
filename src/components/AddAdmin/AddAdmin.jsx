@@ -4,16 +4,22 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import DrawerAppBar from "../navbar/Navbar";
 import { TextField } from "@mui/material";
-import { useState } from "react";
+import { useContext,  useState } from "react";
 import axios from "axios";
-import Checkbox from '@mui/material/Checkbox';
+import MenuItem from "@mui/material/MenuItem";
+import AuthContext from "../../Context/AuthProvider";
 
-const AddAdmin = () => {
+const AddAdmin = ({city}) => {
+  const { auth } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState({
     username: "",
     password: "",
-    canUpdateClinic: false,
+    cityId: "",
+    nameAr: "",
+    nameEn: "",
+    phoneNumber: "",
+    clinicId: "",
   });
 
   const handleOpen = () => {
@@ -29,7 +35,7 @@ const AddAdmin = () => {
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
-    width: 400,
+    width: 450,
     bgcolor: "background.paper",
     border: "2px solid #000",
     boxShadow: 24,
@@ -39,22 +45,45 @@ const AddAdmin = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("", {
-        username: user.username,
-        password: user.password,
-        permissions: {
-          updateClinic: user.canUpdateClinic,
+      const response = await axios.post(
+        "https://medical-clinic.serv00.net/api/actor",
+        {
+          username: user.username,
+          password: user.password,
+          city_id: user.cityId,
+          role_id: 2, // تعيين الدور كـ Admin
+          name_ar: user.nameAr,
+          name_en: user.nameEn,
+          phone_number: user.phoneNumber,
+          clinic_id: user.clinicId,
+          gender: "1",
+          email: "",
+          specialization_id: "1",
+          description: "Description",
+          birth_date: "2000-12-12",
         },
-      });
-    } catch (error) {}
+        {
+          headers: { Authorization: `Bearer ${auth.accessToken}` },
+        }
+      );
+      handleClose();
+      alert("تمت إضافة الـ Admin بنجاح");
+    } catch (error) {
+      console.error("فشل إضافة الـ Admin:", error);
+    }
   };
   return (
     <div style={{ margin: " 80px 20px 0 20px" }}>
       <DrawerAppBar />
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button onClick={handleOpen} variant="contained">
-          Add Admin
-        </Button>
+        {auth.roles.id === 1 ? (
+          <Button onClick={handleOpen} variant="contained">
+            Add Admin
+          </Button>
+        ) : (
+          <Button variant="contained">لا يمكنك اضاقة </Button>
+        )}
+
         <Modal
           open={open}
           onClose={handleClose}
@@ -64,13 +93,14 @@ const AddAdmin = () => {
           <Box sx={style}>
             <Typography>Add admin</Typography>
             <form onSubmit={handleSubmit}>
-              <Box sx={{ margin: "30px 0" }}>
+              <Box>
                 <TextField
                   type="text"
                   id="outlined-basic"
                   label="username"
                   variant="outlined"
                   style={{ width: "100%" }}
+                  margin="normal"
                   required
                   value={user.username}
                   onChange={(e) =>
@@ -85,6 +115,7 @@ const AddAdmin = () => {
                   label="password"
                   variant="outlined"
                   style={{ width: "100%" }}
+                  margin="normal"
                   required
                   value={user.password}
                   onChange={(e) =>
@@ -92,16 +123,98 @@ const AddAdmin = () => {
                   }
                 />
               </Box>
-              <Box sx={{textAlign:"center",margin:"30px 0"}}>
-                <Typography>Do you want to allow it to edit?</Typography>
-                <Checkbox
-                  checked={user.canUpdateClinic}
-                  onChange={(e) => setUser({...user,canUpdateClinic:e.target.checked})}
-                  inputProps={{ "aria-label": "controlled" }}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <TextField
+                  type="text"
+                  id="outlined-basic"
+                  label="name ar"
+                  variant="outlined"
+                  style={{ width: "100%" }}
+                  margin="normal"
+                  required
+                  value={user.nameAr}
+                  onChange={(e) => setUser({ ...user, nameAr: e.target.value })}
+                />
+                <TextField
+                  type="text"
+                  id="outlined-basic"
+                  label="name en"
+                  variant="outlined"
+                  style={{ width: "100%" }}
+                  margin="normal"
+                  required
+                  value={user.nameEn}
+                  onChange={(e) => setUser({ ...user, nameEn: e.target.value })}
                 />
               </Box>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <TextField
+                  type="text"
+                  id="outlined-basic"
+                  label="clinic Id"
+                  variant="outlined"
+                  style={{ width: "100%" }}
+                  margin="normal"
+                  required
+                  value={user.clinicId}
+                  onChange={(e) =>
+                    setUser({ ...user, clinicId: e.target.value })
+                  }
+                />
+                <TextField
+                  type="text"
+                  id="outlined-basic"
+                  label="phone Number"
+                  variant="outlined"
+                  style={{ width: "100%" }}
+                  margin="normal"
+                  required
+                  value={user.phoneNumber}
+                  onChange={(e) =>
+                    setUser({ ...user, phoneNumber: e.target.value })
+                  }
+                />
+              </Box>
+              <Box>
+                <TextField
+                  id="outlined-select-currency"
+                  fullWidth
+                  select
+                  label="Select"
+                  margin="normal"
+                  defaultValue=""
+                  helperText="Please select your city"
+                  onChange={(e) => setUser({ ...user, cityId: e.target.value })}
+                >
+                  {city.map((option) => (
+                    <MenuItem key={option.id} value={option.id}>
+                      {option.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Box>
+
               <Box sx={{ margin: "20px 0 0 0" }}>
-                <Button sx={{ margin: "0 10px 0 0" }} variant="contained" type='submit'>
+                <Button
+                  sx={{ margin: "0 10px 0 0" }}
+                  variant="contained"
+                  type="submit"
+                >
                   add
                 </Button>
                 <Button variant="contained" onClick={handleClose}>

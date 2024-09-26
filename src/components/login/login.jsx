@@ -45,6 +45,10 @@ const Login = ({setAuthenticated}) => {
           setAuthenticated(true)
           navigate('/super-admin')
         }
+        else if(roles.id === 2 ){
+          setAuthenticated(true)
+          navigate('/super-admin')
+        }
       }
 
       setUsername("");
@@ -72,7 +76,7 @@ const Login = ({setAuthenticated}) => {
     <section className="login__perant ">
       <p
         style={{
-          maxWidth: "100%",
+          maxWidth: "130%",
           background: "rgb(180, 71, 71)",
           padding: "10px",
           display: errMsg ? "block" : "none",
