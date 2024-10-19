@@ -15,8 +15,6 @@ import { Link } from "react-router-dom";
 
 const drawerWidth = 240;
 
-
-
 function DrawerAppBar(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -32,12 +30,27 @@ function DrawerAppBar(props) {
       </Typography>
       <Divider />
       <List>
-      <Link to="/super-admin" style={{textDecoration:"none" ,width:"100%" ,fontSize:"15px" , margin:"20px 0"}} >
-              <li style={{ color:"black"}}> Add clinic</li>
-            </Link>
-            <Link to="/add-admin" style={{textDecoration:"none" ,width:"100%" ,fontSize:"15px"}}>
-              <li style={{  color:"black"}}>Add Admin</li>
-            </Link>
+        <Link
+          to="/super-admin"
+          style={{
+            textDecoration: "none",
+            width: "100%",
+            fontSize: "15px",
+            margin: "20px 0",
+          }}
+        >
+          <Button variant="contained" sx={{ width: "100%", margin:"20px 0" }}>
+            Clinic
+          </Button>
+        </Link>
+        <Link
+          to="/add-admin"
+          style={{ textDecoration: "none", width: "100%", fontSize: "15px" }}
+        >
+          <Button variant="contained" sx={{ width: "100%" }}>
+            Admin
+          </Button>
+        </Link>
       </List>
     </Box>
   );
@@ -67,11 +80,14 @@ function DrawerAppBar(props) {
             Dashbord
           </Typography>
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            <Link to="/super-admin" >
-              <Button style={{ color:"white"}}> add clinic</Button>
+            <Link to="/super-admin">
+              <Button style={{ color: "white" }}>
+                {" "}
+                clinic
+              </Button>
             </Link>
             <Link to="/add-admin">
-              <Button style={{  color:"white"}}>add Admin</Button>
+              <Button style={{ color: "white" }}> Admin</Button>
             </Link>
           </Box>
         </Toolbar>
@@ -85,6 +101,7 @@ function DrawerAppBar(props) {
           ModalProps={{
             keepMounted: true, // Better open performance on mobile.
           }}
+          np
           sx={{
             display: { xs: "block", sm: "none" },
             "& .MuiDrawer-paper": {

@@ -8,20 +8,19 @@ import { useContext, useEffect, useState } from "react";
 import AuthContext from "../../Context/AuthProvider";
 import axios from "axios";
 import MenuItem from "@mui/material/MenuItem";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
 import Clinic from "../clinic/Clinic";
-
 
 export const AddClinic = ({ city }) => {
   const { auth } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
-  const [clinics,setClinics] = useState([])
+  const [clinics, setClinics] = useState([]);
   const [clinic, setclinic] = useState({
     clinicNameAr: "",
     clinicNameEn: "",
@@ -30,9 +29,13 @@ export const AddClinic = ({ city }) => {
     addressEn: "",
     urlName: "",
     color: "",
-    files:null
-    
+    files: null,
+    requirements :[1,2]
   });
+
+  const handleFileChange = (event) => {
+    setclinic({ ...clinic, files: event.target.files[0] }); // تخزين الملف المختار في الحالة
+  };
 
   const getDataClinic = async () => {
     try {
@@ -44,49 +47,60 @@ export const AddClinic = ({ city }) => {
           },
         }
       );
-      setClinics(response.data.data)
+      setClinics(response.data.data);
       console.log(response.data.data);
-      
     } catch (error) {
       console.error("There was an error making the request:", error);
     }
-  }
+  };
   useEffect(() => {
-      getDataClinic()
-  },[])
+    getDataClinic();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!clinic.files) {
-      alert('يرجى اختيار ملف قبل التحميل');
-      return;
-    }
+
 
     const formData = new FormData();
-    formData.append('image',clinic.files ); // إضافة الملف إلى FormData
+    formData.append("name_ar", clinic.clinicNameAr);
+    formData.append("name_en", clinic.clinicNameEn);
+    formData.append("city_id", clinic.cityId);
+    formData.append("address_ar", clinic.addressAr);
+    formData.append("address_en", clinic.addressEn);
+    formData.append("url_name", clinic.urlName);
+    formData.append("color", clinic.color);
+    clinic.requirements.forEach((requirement, index) => {
+      formData.append(`requirements[]`, requirement); // إرسال كل عنصر مع نفس المفتاح
+    });
 
+    if (clinic.files) {
+      formData.append("logo", clinic.files); // إضافة الصورة إلى FormData
+    }
 
     try {
       const response = await axios.post(
         "https://medical-clinic.serv00.net/api/clinic",
+        formData,
+        // {
+        //   name_ar: clinic.clinicNameAr,
+        //   name_en: clinic.clinicNameEn,
+        //   city_id: clinic.cityId,
+        //   address_ar: clinic.addressAr,
+        //   address_en: clinic.addressEn,
+        //   url_name: clinic.urlName,
+        //   color: clinic.color,
+        //   logo:formData,
+        //   // requirements[0]: "1",
+        // },
         {
-          name_ar: clinic.clinicNameAr,
-          name_en: clinic.clinicNameEn,
-          city_id: clinic.cityId,
-          address_ar: clinic.addressAr,
-          address_en: clinic.addressEn,
-          url_name: clinic.urlName,
-          color: clinic.color,
-          logo:formData,
-          // requirements[0]: "1",
-        },
-        {
-          'Content-Type': 'multipart/form-data',
-          headers: { Authorization: `Bearer ${auth.accessToken}` },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${auth.accessToken}`,
+          },
         }
       );
-      console.log(response);
+      console.log(response.data.data);
       alert("تمت إضافة العيادة بنجاح");
     } catch (error) {
       console.error("فشل إضافة العيادة:", error);
@@ -99,10 +113,6 @@ export const AddClinic = ({ city }) => {
 
   const handleClose = () => {
     setOpen(false);
-  };
-
-  const handleFileChange = (event) => {
-    setclinic({...clinic,files:event.target.files[0]}); // تخزين الملف المختار في الحالة
   };
 
   const style = {
@@ -221,8 +231,6 @@ export const AddClinic = ({ city }) => {
                   }
                 />
                 <input type="file" onChange={handleFileChange} />
-
-
               </Box>
               <Box>
                 <TextField
@@ -260,32 +268,31 @@ export const AddClinic = ({ city }) => {
           </Box>
         </Modal>
       </div>
-        <Box>
+      <Box>
         <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell align="left">id</TableCell>
-            <TableCell align="left">name</TableCell>
-            <TableCell align="left">address</TableCell>
-            <TableCell align="left">color</TableCell>
-            <TableCell align="right">Edit</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {clinics.map((row) => (
-            <TableRow
-              key={row.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-                <Clinic row={row} city={city}/>
-
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-        </Box>
+          <Table sx={{ minWidth: 650 }} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell align="left">id</TableCell>
+                <TableCell align="left">name</TableCell>
+                <TableCell align="left">address</TableCell>
+                <TableCell align="left">color</TableCell>
+                <TableCell align="right">Edit</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {clinics.map((row) => (
+                <TableRow
+                  key={row.id}
+                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                >
+                  <Clinic row={row} city={city} />
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
     </div>
   );
 };
